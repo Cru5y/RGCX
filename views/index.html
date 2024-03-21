@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <title>ESPV - MEMS CPE - rgcx.ro prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
+
+</head>
+
+<body>
+  <div id="popupScreen" class="popup-screen" style="display: none;">
+    <div class="popup-content">
+      <span class="close-btn">&times;</span>
+      <div class="popup-content-text">
+        <p id="modalQuantity">Quantity: </p>
+        <p id="modalPrice">Price: </p>
+        <p id="modalRegion">Region: </p>
+        <p id="modalCounty">County: </p>
+        <p id="modalPod">PoD: </p>
+        <button id="modalBuyBtn" class="aqua-btn" style="display: block; position: relative;">Buy</button>
+      </div>
+    </div>
+  </div>  
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <div class="banner">
+    <div class="banner-box" id="available_stock">
+      <span><strong>Available Stock</strong></span>
+    </div>
+    <div class="banner-box">
+      <span>Wheat</span>
+      <span>500 Tonnes</span>
+    </div>
+    <div class="banner-box">
+      <span>Corn</span>
+      <span>800 Tonnes</span>
+    </div>
+    <div class="banner-box">
+      <span>Sunflower</span>
+      <span>450 Tonnes</span>
+    </div>
+    <div class="banner-box">
+      <span>Rapeseed</span>
+      <span>0 Tonnes</span>
+    </div>
+  </div>
+  <div class="wrapper">
+    <div id="content-wrapper">
+      <div class="symbolinfo_wrapper">
+        <div id="commodity_select_wrapper">
+          <label for="select_commodity">Select a commodity</label>
+          <select id="select_commodity"></select>
+        </div>
+        <div class="symbol-summary">
+          <img class="symbol-img" src="/img/sunflower.png" />
+          <div class="symboltitle-wrapper">
+            <h1 id="symbol_title">SUNFLOWER</h1>
+            <h3 id="symbol_subtitle">RGCX.RO SUNFLOWER PRICES</h3>
+          </div>
+        </div>
+        <div id="price_info">
+          <div id="price_summary">
+            <h1 id="current_price">1996 RON</h1>
+            <h2 id="price_change">+48 (1.61%)</h2>
+          </div>
+          <label for="price_info" id="date_label">Prices for Thu, Feb 22, 2024</label>
+        </div>
+        <div id="datagrid_wrapper">
+          <div id="data-grid">
+            <div class="row">
+              <div class="grid-box">
+                <span><b>Volume (current)</b></span>
+                <span id="volume_val">2600t</span>
+              </div>
+              <div class="grid-box">
+                <span><b>52 Week High (RON)</b></span>
+                <span id="year_high_val">2198</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="grid-box">
+                <span><b>Day's High (RON)</b></span>
+                <span id="day_high_val">2113</span>
+              </div>
+              <div class="grid-box">
+                <span><b>Bid/Ask price (RON)</b></span>
+                <span id="bid_ask_vals">1995/1998</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="grid-box">
+                <span><b>Day's Low (RON)</b></span>
+                <span id="day_low_val">1897</span>
+              </div>
+              <div class="grid-box">
+                <span><b>52 Week Low (RON)</b></span>
+                <span id="year_low_val">1795</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-wrapper">
+        <form id="myForm" action="/" method="POST">
+          <div class="form-row">
+            <div class="input-wrapper">
+              <label for="action_select">Action</label>
+              <select class="form-item" name="action_select" id="action_select">
+                <option value="" disabled selected>Select</option>
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+              </select>
+            </div>
+            <div class="input-wrapper">
+              <label for="ordertype_select">Order Type</label>
+              <select class="form-item" name="ordertype_select" id="ordertype_select">
+                <!-- <option value="" disabled selected>Select</option> -->
+                <option value="LIMIT">LIMIT</option>
+                <option value="MARKET">MARKET</option>
+              </select>
+            </div>
+            <div class="input-wrapper">
+              <label for="duration_select">Duration</label>
+              <select class="form-item" name="duration_select" id="duration_select">
+                <!-- <option value="" disabled selected>Select</option> -->
+                <option value="GTC">GOOD 'TIL CANCELLED</option>
+                <option value="DAY">DAY ONLY</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-wrapper">
+              <label for="region_select">Region</label>
+              <select class="form-item" name="region_select" id="region_select">
+                <!-- <option value="" disabled selected>Select</option> -->
+                <option value="East">East</option>
+                <option value="West">West</option>
+                <option value="South">South</option>
+                <option value="North">North</option>
+                <option value="Center">Center</option>
+              </select>
+            </div>
+            <div class="input-wrapper">
+              <label for="county_select">County</label>
+              <select class="form-item" name="county_select" id="county_select">
+                <!-- <option value="" disabled selected>Select</option> -->
+                <option value="Arad">Arad</option>
+                <option value="Bacau">Bacau</option>
+                <option value="Bihor">Bihor</option>
+                <option value="Braila">Braila</option>
+                <option value="Calarasi">Calarasi</option>
+                <option value="Caras Severin">Caras Severin</option>
+                <option value="Constanta">Constanta</option>
+                <option value="Dolj">Dolj</option>
+                <option value="Giurgiu">Giurgiu</option>
+                <option value="Olt">Olt</option>
+                <option value="Satu Mare">Satu Mare</option>
+                <option value="Timis">Timis</option>
+                <option value="Vaslui">Vaslui</option>
+              </select>
+            </div>
+            <div class="input-wrapper">
+              <label for="local_select">Location</label>
+              <select class="form-item" name="local_select" id="local_select">
+                <option value="Barsanesti">Barsanesti</option>
+                <option value="Berzovia">Berzovia</option>
+                <option value="Biled">Biled</option>
+                <option value="Braila">Braila</option>
+                <option value="Calafat">Calafat</option>
+                <option value="Calarasi">Calarasi</option>
+                <option value="Carani">Carani</option>
+                <option value="Carei">Carei</option>
+                <option value="Chisineu Cris">Chisineu Cris</option>
+                <option value="Constanta">Constanta</option>
+                <option value="Contesti">Contesti</option>
+                <option value="Corabia">Corabia</option>
+                <option value="Costesti">Costesti</option>
+                <option value="Curtici">Curtici</option>
+                <option value="Giurgiu">Giurgiu</option>
+                <option value="Gradinari">Gradinari</option>
+                <option value="Gutinas">Gutinas</option>
+                <option value="Les">Les</option>
+                <option value="Marghita">Marghita</option>
+                <option value="Moravita">Moravita</option>
+                <option value="Nadlac">Nadlac</option>
+                <option value="Onesti">Onesti</option>
+                <option value="Sacueni">Sacueni</option>
+                <option value="Salonta">Salonta</option>
+                <option value="Sanpetru German">Sanpetru German</option>
+                <option value="Satu Mare">Satu Mare</option>
+                <option value="Sinersig">Sinersig</option>
+                <option value="Siria">Siria</option>
+                <option value="Socodor">Socodor</option>
+                <option value="Valea lui Mihai">Valea lui Mihai</option>
+                <option value="Zabrani">Zabrani</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-wrapper">
+              <label for="price_select">Price</label>
+              <input class="form-item" type="number" id="price_select" placeholder="0" min="1">
+            </div>
+            <div class="input-wrapper">
+              <label for="quantity_select">Quantity</label>
+              <input class="form-item" type="number" id="quantity_select" placeholder="0" min="20">
+            </div>
+            <div class="input-wrapper">
+              <button type="button" class="aqua-btn" id="submit_btn">TRADE</button>
+            </div>
+          </div>
+      </div>
+      </form>
+      <div class="topgraph-wrapper">
+        <div class="btn-wrapper">
+          <button class="aqua-btn" id="orderbook_btn">ORDERBOOK</button>
+        </div>
+        <div class="graph-wrapper" id="topchart_container">
+          <label>HISTORICAL</label>
+        </div>
+      </div>
+      <div class="bottomgraph-wrapper">
+        <div class="graph-wrapper" id="bottomchart_container">
+          <label>ESTIMATED</label>
+        </div>
+      </div>
+      <div class="orderbook-wrapper">
+        <button class="aqua-btn hidden" id="prices_btn">PRICES</button>
+        <div class="orderbooks-wrap">
+          <button id="dynamicBuyButton" style="display: none; position: absolute;">Buy</button>
+          <button id="dynamicSellButton" style="display: none; position: absolute;">Sell</button>
+
+          <div class="orderbook-container1">
+            <div class="header-flex">
+              <select class="dropdown-menu">
+                <option value="option1">Regional</option>
+                <option value="option2">County</option>
+                <option value="option3">Local</option>
+              </select>
+              <div class="dropdown">
+                <button class="dropbtn" data-dropdown-id="myDropdown1">Select Options</button>
+                <div id="myDropdown1" class="dropdown-content1">
+                  <form>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Center" name="Center" value="Center">
+                      <label for="Center">Center</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="East" name="East" value="East">
+                      <label for="East">East</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="North" name="North" value="North">
+                      <label for="North">North</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="South" name="South" value="South">
+                      <label for="South">South</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="West" name="West" value="West">
+                      <label for="West">West</label><br>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="optionsAndMap">
+              <div class="selectedOptions">
+                <div id="selectedOptions1">Select an option.</div>
+              </div>
+              <button id="openModalButton1">
+                <img src="/img/maps-and-flags.png" />
+              </button>
+            </div>
+            <table class="orderbook-table1">
+              <thead>
+                <tr>
+                  <th class="buy_header">Buy</th>
+                  <th class="price_header">Price</th>
+                  <th class="sell_header">Sell</th>
+                </tr>
+              </thead>
+            </table>
+            <table class="orderbook-table2">
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td>2002</td>
+                  <td class="sell">16000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>2002</td>
+                  <td class="sell">12000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>2001</td>
+                  <td class="sell">8000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>2001</td>
+                  <td class="sell">4000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">2000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">1900</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1998</td>
+                  <td class="sell">1800</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1998</td>
+                  <td class="sell">1200</td>
+                </tr>
+              </tbody>
+            </table>
+            <!--             <table class="orderbook-table3">
+              <tbody>
+                <tr>
+                  <td class="buy">800</td>
+                  <td>3011.0</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">1600</td>
+                  <td>3010.0</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">1800</td>
+                  <td>3009.0</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">1900</td>
+                  <td>3008.0</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">3600</td>
+                  <td>3007.0</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">6000</td>
+                  <td>3006.0</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">11000</td>
+                  <td>3005.0</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">12000</td>
+                  <td>3004.0</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table> -->
+          </div>
+          <div class="sync-button">
+            <button>
+              <img src="/img/revert-hand-drawn-arrows.png" />
+            </button>
+          </div>
+          <div class="orderbook-container2">
+            <div class="header-flex">
+              <select class="dropdown-menu">
+                <option value="option1">County</option>
+                <option value="option2">Regional</option>
+                <option value="option3">Local</option>
+              </select>
+              <div class="dropdown">
+                <button class="dropbtn" data-dropdown-id="myDropdown2">Select Options</button>
+                <div id="myDropdown2" class="dropdown-content2">
+                  <form>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Arad" name="Arad" value="Arad">
+                      <label for="Arad">Arad</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Bacau" name="Bacau" value="Bacau">
+                      <label for="Bacau">Bacau</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Bihor" name="Bihor" value="Bihor">
+                      <label for="Bihor">Bihor</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Braila" name="Braila" value="Braila">
+                      <label for="Braila">Braila</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Calarasi" name="Calarasi" value="Calarasi">
+                      <label for="Calarasi">Calarasi</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="CarasSeverin" name="CarasSeverin" value="Caras Severin">
+                      <label for="CarasSeverin">Caras Severin</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Constanta" name="Constanta" value="Constanta">
+                      <label for="Constanta">Constanta</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Dolj" name="Dolj" value="Dolj">
+                      <label for="Dolj">Dolj</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Giurgiu" name="Giurgiu" value="Giurgiu">
+                      <label for="Giurgiu">Giurgiu</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Olt" name="Olt" value="Olt">
+                      <label for="Olt">Olt</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="SatuMare" name="SatuMare" value="Satu Mare">
+                      <label for="SatuMare">Satu Mare</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Timis" name="Timis" value="Timis">
+                      <label for="Timis">Timis</label><br>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Vaslui" name="Vaslui" value="Vaslui">
+                      <label for="Vaslui">Vaslui</label><br>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="optionsAndMap">
+              <div class="selectedOptions">
+                <div id="selectedOptions2">Select an option.</div>
+              </div>
+              <button id="openModalButton2">
+                <img src="/img/maps-and-flags.png" />
+              </button>
+            </div>
+            <table class="orderbook-table1">
+              <thead>
+                <tr>
+                  <th class="buy_header">Buy</th>
+                  <th class="price_header">Price</th>
+                  <th class="sell_header">Sell</th>
+                </tr>
+              </thead>
+            </table>
+            <table class="orderbook-table2">
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td>2002</td>
+                  <td class="sell">5600</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>2002</td>
+                  <td class="sell">4000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>2001</td>
+                  <td class="sell">3800</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>2001</td>
+                  <td class="sell">3200</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">2600</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">1800</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1998</td>
+                  <td class="sell">600</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1998</td>
+                  <td class="sell">300</td>
+                </tr>
+              </tbody>
+            </table>
+<!--             <table class="orderbook-table3">
+              <tbody>
+                <tr>
+                  <td class="buy">600</td>
+                  <td>1995</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">800</td>
+                  <td>1995</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">1000</td>
+                  <td>1994</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">2600</td>
+                  <td>1994</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">3200</td>
+                  <td>1993</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">9000</td>
+                  <td>1993</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">8000</td>
+                  <td>1992</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">7000</td>
+                  <td>1992</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table> -->
+          </div>
+          <div class="sync-button">
+            <button>
+              <img src="/img/revert-hand-drawn-arrows.png" />
+            </button>
+          </div>
+          <div class="orderbook-container3">
+            <div class="header-flex">
+              <select class="dropdown-menu">
+                <option value="option1">Local</option>
+                <option value="option2">County</option>
+                <option value="option3">Regional</option>
+              </select>
+              <div class="dropdown">
+                <button class="dropbtn" data-dropdown-id="myDropdown3">Select Options</button>
+                <div id="myDropdown3" class="dropdown-content3">
+                  <form>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Barsanesti" name="Barsanesti" value="Barsanesti">
+                      <label for="Barsanesti">Barsanesti</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Berzovia" name="Berzovia" value="Berzovia">
+                      <label for="Berzovia">Berzovia</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Biled" name="Biled" value="Biled">
+                      <label for="Biled">Biled</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Braila" name="Braila" value="Braila">
+                      <label for="Braila">Braila</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Calafat" name="Calafat" value="Calafat">
+                      <label for="Calafat">Calafat</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Calarasi" name="Calarasi" value="Calarasi">
+                      <label for="Calarasi">Calarasi</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Carani" name="Carani" value="Carani">
+                      <label for="Carani">Carani</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Carei" name="Carei" value="Carei">
+                      <label for="Carei">Carei</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="ChisineuCris" name="ChisineuCris" value="Chisineu Cris">
+                      <label for="ChisineuCris">Chisineu Cris</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Constanta" name="Constanta" value="Constanta">
+                      <label for="Constanta">Constanta</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Corabia" name="Corabia" value="Corabia">
+                      <label for="Corabia">Corabia</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Giurgiu" name="Giurgiu" value="Giurgiu">
+                      <label for="Giurgiu">Giurgiu</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Gutinas" name="Gutinas" value="Gutinas">
+                      <label for="Gutinas">Gutinas</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Les" name="Les" value="Les">
+                      <label for="Les">Les</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Marghita" name="Marghita" value="Marghita">
+                      <label for="Marghita">Marghita</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Moravita" name="Moravita" value="Moravita">
+                      <label for="Moravita">Moravita</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Nadlac" name="Nadlac" value="Nadlac">
+                      <label for="Nadlac">Nadlac</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Onesti" name="Onesti" value="Onesti">
+                      <label for="Onesti">Onesti</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Sacueni" name="Sacueni" value="Sacueni">
+                      <label for="Sacueni">Sacueni</label>
+                    </div>
+                    <div class="multipleSelectionOption">
+                      <input type="checkbox" id="Salonta" name="Salonta" value="Salonta">
+                      <label for="Salonta">Salonta</label>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="optionsAndMap">
+              <div class="selectedOptions">
+                <div id="selectedOptions3">Select an option.</div>
+              </div>
+              <button id="openModalButton3">
+                <img src="/img/maps-and-flags.png" />
+              </button>
+            </div>
+            <table class="orderbook-table1">
+              <thead>
+                <tr>
+                  <th class="buy_header">Buy</th>
+                  <th class="price_header">Price</th>
+                  <th class="sell_header">Sell</th>
+                </tr>
+              </thead>
+            </table>
+            <table class="orderbook-table2">
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td>2001</td>
+                  <td class="sell">3000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">4000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">3400</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">3000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1999</td>
+                  <td class="sell">2000</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1998</td>
+                  <td class="sell">1500</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1998</td>
+                  <td class="sell">400</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>1998</td>
+                  <td class="sell">200</td>
+                </tr>
+              </tbody>
+            </table>
+<!--             <table class="orderbook-table3">
+              <tbody>
+                <tr>
+                  <td class="buy">400</td>
+                  <td>1995</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">500</td>
+                  <td>1995</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">600</td>
+                  <td>1995</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">1600</td>
+                  <td>1994</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">2200</td>
+                  <td>1994</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">8000</td>
+                  <td>1994</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">6000</td>
+                  <td>1993</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td class="buy">4000</td>
+                  <td>1993</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close">&times;</span>
+        <img src="/img/espv.png" class="espv_logo" />
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+  
+  <div id="mapModal1" class="mapModal">
+    <div class="mapModal-content">
+      <span id="close-button1" class="close-button">×</span>
+      <img src="/img/south.png" alt="Map" class="mapModal-image">
+    </div>
+  </div>
+
+  <div id="mapModal2" class="mapModal">
+    <div class="mapModal-content">
+      <span id="close-button2" class="close-button">×</span>
+      <img src="/img/caras-severin.png" alt="Map" class="mapModal-image">
+    </div>
+  </div>
+
+  <div id="mapModal3" class="mapModal">
+    <div class="mapModal-content">
+      <span id="close-button3" class="close-button">×</span>
+      <img src="/img/nadlac.png" alt="Map" class="mapModal-image">
+    </div>
+  </div>
+
+  <script src="js/airtable-regions.js"></script>
+  <script src="js/airtable-county.js"></script>
+  <script src="js/airtable-local.js"></script>
+
+  <script src="js/globals.js"></script>
+  <!--   <script src="js/modal.js"></script>-->  
+  <script src="js/trade-modal.js"></script>
+  <!--   <script src="js/submitOrder.js"></script>-->
+  <script src="js/historicalchart.js"></script>
+  <script src="js/estimatechart.js"></script>
+  <script src="js/index.js"></script>
+  <script src="js/orderbook.js"></script>
+  <script src="js/fillPrice.js"></script>
+  <script src="js/dynamicBuyButton.js"></script>
+  <script src="js/dynamicSellButton.js"></script>
+  <script src="js/imageModal.js"></script>
+  <script src="js/popup.js"></script>
+  <!--   <script src="js/airtable-and-selection.js"></script>
+ -->
+  <script src="js/multipleSelection1.js"></script>
+  <script src="js/multipleSelection2.js"></script>
+  <script src="js/multipleSelection3.js"></script>
+
+  <!--   <button id="dynamicBuyButton">Buy</button>
+ -->
+
+</body>
+
+</html>
